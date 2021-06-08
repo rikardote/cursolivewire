@@ -2,18 +2,18 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Post;
+use App\Models\User;
 use Livewire\Component;
-use Illuminate\Support\Facades\Storage;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 
-class ShowPosts extends Component
+class ShowUsers extends Component
 {
     use WithFileUploads;
     use WithPagination;
 
-    public $post, $image, $identificador;
+    public $user, $image, $identificador;
     public $search = '';
     public $sort = 'id';
     public $direction = 'desc';
@@ -29,30 +29,31 @@ class ShowPosts extends Component
     ];
 
     protected $rules = [
-        'post.title' => 'required',
-        'post.content' => 'required'
+        'user.name' => 'required',
+        'user.email' => 'required',
+        'user.password' => 'required'
     ];
 
     protected $listeners = ['render', 'delete'];
 
     public function mount(){
         $this->identificador = rand();
-        $this->post = new Post();
+        $this->user = new User();
     }
 
     public function render()
     {
 
         if ($this->readyToLoad) {
-            $posts = Post::where('title', 'like', '%' . $this->search . '%')
-                    ->orWhere('content', 'like', '%' . $this->search . '%')
+            $users = User::where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('email', 'like', '%' . $this->search . '%')
                     ->orderBy($this->sort, $this->direction)
                     ->paginate($this->cant);
         }else{
-            $posts= [];
+            $users= [];
         }
 
-        return view('livewire.posts.show-posts', compact('posts'));
+        return view('livewire.users.show-users', compact('users'));
     }
     public function loadPost(){
         $this->readyToLoad = true;
@@ -81,28 +82,23 @@ class ShowPosts extends Component
         $this->resetPage();
     }
 
-    public function edit(Post $post){
-        $this->post = $post;
+    public function edit(User $user){
+        $this->user = $user;
         $this->open_edit = true;
     }
 
     public function update(){
         $this->validate();
 
-        if ($this->image) {
-            Storage::delete([$this->post->image]);
-            $this->post->image = $this->image->store('posts');
-        }
+        $this->user->save();
 
-        $this->post->save();
-
-        $this->reset(['open_edit', 'image']);
+        $this->reset(['open_edit']);
         $this->identificador = rand();
 
-        $this->emit('alert', 'El post se actualizo satisfactoriamente');
+        $this->emit('alert', 'El usuario se actualizo satisfactoriamente');
     }
 
-    public function delete(Post $post){
-        $post->delete();
+    public function delete(User $user){
+        $user->delete();
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Livewire\ShowPosts;
+use App\Http\Livewire\ShowUsers;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,3 +20,4 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', ShowPosts::class)->name('dashboard');
+Route::middleware(['auth:sanctum', 'verified'])->get('/users', ShowUsers::class)->name('users');
